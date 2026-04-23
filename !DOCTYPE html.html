@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Média - Eu, Líder Camaleão</title>
+    <style>
+        :root {
+            --primary: #80509a;
+            --primary-hover: #6a4280;
+            --primary-light: #f3eef7;
+            --primary-border: #e2d6e9;
+            --success: #10b981;
+            --danger: #ef4444;
+            --text-main: #3c2a4d;
+            --text-light: #a08fb1;
+        }
+
+        body {
+            background-color: #ffffff;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            padding: 2rem 1rem;
+            color: var(--text-main);
+        }
+
+        .container {
+            max-width: 48rem;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1, h2 {
+            font-family: 'Arial Black', sans-serif;
+            font-weight: 900;
+            margin: 0.25rem 0;
+        }
+
+        h2 { color: var(--primary); font-size: 1.8rem; }
+        h1 { color: #5a4b67; font-size: 1.5rem; margin-bottom: 1rem; }
+
+        .badge {
+            background-color: var(--primary-light);
+            padding: 0.25rem 1rem;
+            border-radius: 9999px;
+            border: 1px solid var(--primary-border);
+            display: inline-block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .badge span { color: var(--primary); }
+
+        .save-indicator {
+            font-size: 0.75rem;
+            color: var(--success);
+            font-weight: 700;
+            height: 1.5rem;
+            margin-bottom: 1rem;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .header-img-container {
+            margin-bottom: 1.5rem;
+        }
+
+        .camaleao-img {
+            max-width: 300px;
+            width: 100%;
+            height: auto;
+            margin: 0 auto;
+            display: block;
+            border-radius: 1rem;
+        }
+
+        .card {
+            background: #ffffff;
+            border: 1px solid var(--primary-border);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(128, 80, 154, 0.08);
+            position: relative;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+            gap: 0.2rem;
+            background: #ffffff;
+            padding: 0.5rem;
+            border-radius: 1.25rem;
+            transition: transform 0.2s;
+        }
+        
+        .input-group:focus-within {
+            transform: translateY(-2px);
+        }
+
+        .team-name {
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border: none;
+            background: transparent;
+            padding: 0.25rem 0.5rem;
+            outline: none;
+            border-bottom: 1px dashed var(--primary-border);
+            transition: all 0.2s;
+            width: 100%;
+            box-sizing: border-box;
+            cursor: text;
+        }
+
+        .team-name:focus {
+            border-bottom-color: var(--primary);
+            color: var(--primary-hover);
+        }
+
+        .team-score {
+            padding: 1rem;
+            border-radius: 1rem;
+            border: 2px solid var(--primary-light);
+            background-color: #faf9fb;
+            font-size: 1.1rem;
+            font-weight: 700;
+            outline: none;
+            transition: all 0.2s;
+            color: var(--text-main);
+            box-sizing: border-box;
+            width: 100%;
+        }
+
+        .team-score:focus {
+            border-color: var(--primary);
+            background-color: #fff;
+            box-shadow: 0 0 0 4px rgba(128, 80, 154, 0.1);
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            border-top: 1px solid var(--primary-light);
+            padding-top: 2rem;
+        }
+
+        .result-box {
+            padding: 1.5rem;
+            border-radius: 1.25rem;
+            border: 1px solid;
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .box-primary { background: var(--primary-light); border-color: var(--primary-border); color: var(--text-main); }
+        .box-green { background: #ecfdf5; border-color: #d1fae5; color: #064e3b; }
+
+        .box-title { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 0.5rem; opacity: 0.8; }
+        .box-value { font-size: 2.5rem; font-weight: 900; margin: 0; transition: color 0.3s; }
+
+        .progress-container {
+            background: #e2d6e9;
+            height: 8px;
+            border-radius: 4px;
+            margin-top: 1.25rem;
+            overflow: hidden;
+        }
+
+        .progress-bar { background: var(--primary); height: 100%; width: 0%; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s; }
+
+        .actions { display: flex; justify-content: center; margin-top: 2.5rem; }
+
+        button {
+            padding: 1rem 2.5rem;
+            border-radius: 1rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform 0.1s, background 0.2s, box-shadow 0.2s;
+            border: none;
+            max-width: 300px;
+            width: 100%;
+        }
+
+        button:active { transform: scale(0.97); }
+
+        .btn-reset { background: #f8f6f9; color: var(--text-light); border: 2px solid var(--primary-border); }
+        .btn-reset:hover { background: #f1eef4; color: var(--text-main); border-color: var(--primary); }
+
+        #warningBox {
+            background: #fef2f2;
+            border: 1px solid #fee2e2;
+            color: var(--danger);
+            padding: 1rem;
+            border-radius: 0.75rem;
+            margin-top: 1.5rem;
+            font-weight: 700;
+            display: none;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        footer { 
+            margin-top: 2rem; 
+            font-size: 0.75rem; 
+            color: var(--text-light); 
+            line-height: 1.6;
+        }
+
+        .footer-highlight {
+            font-weight: 700;
+            color: var(--primary);
+            display: block;
+            margin-top: 0.4rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        <div class="header">
+            <div class="header-img-container">
+                <img src="https://i.ibb.co/9HnhP6Xh/Oficina-Eu-l-der-camale-o.png" alt="Oficina Eu Líder Camaleão" class="camaleao-img">
+            </div>
+            <h2>Oficina: Eu, Líder Camaleão!</h2>
+            <h1>Cálculo de Média da Turma</h1>
+            <div class="badge">Pontuação Máxima Global: <span>2490</span></div>
+            <div id="saveIndicator" class="save-indicator">✓ Dados salvos automaticamente</div>
+        </div>
+
+        <div class="card">
+            <div class="grid" id="teamsContainer"></div>
+
+            <div class="results-grid">
+                <div class="result-box box-primary">
+                    <div class="box-title">Pontuação Total Acumulada</div>
+                    <div id="totalPointsDisplay" class="box-value">0</div>
+                    <div class="progress-container">
+                        <div id="progressBar" class="progress-bar"></div>
+                    </div>
+                </div>
+
+                <div class="result-box box-green">
+                    <div class="box-title">Nota Convertida Final</div>
+                    <div id="convertedGradeDisplay" class="box-value">0.00</div>
+                </div>
+            </div>
+
+            <div id="warningBox">⚠️ Atenção: A pontuação excedeu o limite de 2490!</div>
+
+            <div class="actions">
+                <button onclick="resetForm()" class="btn-reset">LIMPAR DADOS</button>
+            </div>
+        </div>
+
+        <footer>
+            &copy; 2024 Oficina Eu, Líder Camaleão • Cálculo Interativo
+            <span class="footer-highlight">Grupo de Estudos Formadores em Ação - SEED/ PR</span>
+        </footer>
+    </div>
+
+    <script>
+        const MAX_POINTS = 2490;
+        const NUM_TEAMS = 8;
+        let saveTimeout;
+
+        function createInputs() {
+            const container = document.getElementById('teamsContainer');
+            container.innerHTML = ''; 
+            for (let i = 1; i <= NUM_TEAMS; i++) {
+                const div = document.createElement('div');
+                div.className = 'input-group';
+                div.innerHTML = `
+                    <input type="text" id="teamName-${i}" class="team-name" value="EQUIPE 0${i}" oninput="triggerSave()">
+                    <input type="number" id="team-${i}" class="team-score" placeholder="0" oninput="calculate()">
+                `;
+                container.appendChild(div);
+            }
+            loadData(); 
+        }
+
+        function calculate() {
+            let total = 0;
+            for (let i = 1; i <= NUM_TEAMS; i++) {
+                total += Number(document.getElementById(`team-${i}`).value) || 0;
+            }
+
+            const totalDisplay = document.getElementById('totalPointsDisplay');
+            const convertedDisplay = document.getElementById('convertedGradeDisplay');
+            const warningBox = document.getElementById('warningBox');
+            const progressBar = document.getElementById('progressBar');
+
+            totalDisplay.innerText = total.toLocaleString('pt-BR');
+            const convertedGrade = (total / MAX_POINTS) * 100;
+            convertedDisplay.innerText = convertedGrade.toFixed(2);
+
+            const percent = Math.min((total / MAX_POINTS) * 100, 100);
+            progressBar.style.width = percent + '%';
+
+            if (total > MAX_POINTS) {
+                warningBox.style.display = 'block';
+                totalDisplay.style.color = '#ef4444';
+                progressBar.style.backgroundColor = '#ef4444';
+            } else {
+                warningBox.style.display = 'none';
+                totalDisplay.style.color = '#3c2a4d';
+                progressBar.style.backgroundColor = '#80509a';
+            }
+            
+            triggerSave();
+        }
+
+        function triggerSave() {
+            const data = { names: [], scores: [] };
+            for (let i = 1; i <= NUM_TEAMS; i++) {
+                data.names.push(document.getElementById(`teamName-${i}`).value);
+                data.scores.push(document.getElementById(`team-${i}`).value);
+            }
+            localStorage.setItem('camaleaoData', JSON.stringify(data));
+
+            const indicator = document.getElementById('saveIndicator');
+            indicator.style.opacity = '1';
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(() => { indicator.style.opacity = '0'; }, 2000);
+        }
+
+        function loadData() {
+            const saved = localStorage.getItem('camaleaoData');
+            if (saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    for (let i = 1; i <= NUM_TEAMS; i++) {
+                        if(data.names && data.names[i-1]) {
+                            document.getElementById(`teamName-${i}`).value = data.names[i-1];
+                        }
+                        if(data.scores && data.scores[i-1]) {
+                            document.getElementById(`team-${i}`).value = data.scores[i-1];
+                        }
+                    }
+                } catch(e) {
+                    console.error('Erro ao carregar dados.', e);
+                }
+            }
+            calculateSilently();
+        }
+
+        function calculateSilently() {
+            let total = 0;
+            for (let i = 1; i <= NUM_TEAMS; i++) {
+                total += Number(document.getElementById(`team-${i}`).value) || 0;
+            }
+            const convertedGrade = (total / MAX_POINTS) * 100;
+            document.getElementById('totalPointsDisplay').innerText = total.toLocaleString('pt-BR');
+            document.getElementById('convertedGradeDisplay').innerText = convertedGrade.toFixed(2);
+            document.getElementById('progressBar').style.width = Math.min((total / MAX_POINTS) * 100, 100) + '%';
+        }
+
+        function resetForm() {
+            if(confirm("Tem certeza que deseja limpar todos os pontos e nomes de equipes?")) {
+                localStorage.removeItem('camaleaoData');
+                for (let i = 1; i <= NUM_TEAMS; i++) {
+                    document.getElementById(`team-${i}`).value = '';
+                    document.getElementById(`teamName-${i}`).value = `EQUIPE 0${i}`;
+                }
+                calculate();
+            }
+        }
+
+        window.onload = createInputs;
+    </script>
+</body>
+</html>
