@@ -1,12 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<link rel="manifest" href="manifest.json">
-<script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js');
-  }
-</script>
-    <head>
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculadora de Média - Eu, Líder Camaleão</title>
@@ -207,6 +201,31 @@
         .btn-reset { background: #f8f6f9; color: var(--text-light); border: 2px solid var(--primary-border); }
         .btn-reset:hover { background: #f1eef4; color: var(--text-main); border-color: var(--primary); }
 
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 1.5rem;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
         #warningBox {
             background: #fef2f2;
             border: 1px solid #fee2e2;
@@ -242,14 +261,13 @@
 </head>
 <body>
     <div class="container">
-        
         <div class="header">
             <div class="header-img-container">
                 <img src="https://i.ibb.co/9HnhP6Xh/Oficina-Eu-l-der-camale-o.png" alt="Oficina Eu Líder Camaleão" class="camaleao-img">
             </div>
             <h2>Oficina: Eu, Líder Camaleão!</h2>
             <h1>Cálculo de Média da Turma</h1>
-            <div class="badge">Pontuação Máxima Global: <span>2410</span></div>
+            <div class="badge">Pontuação Máxima Global: <span id="maxGlobalLabel">2410</span></div>
             <div id="saveIndicator" class="save-indicator">✓ Dados salvos automaticamente</div>
         </div>
 
@@ -274,7 +292,7 @@
             <div id="warningBox">⚠️ Atenção: A pontuação excedeu o limite de 2410!</div>
 
             <div class="actions">
-                <button onclick="resetForm()" class="btn-reset">LIMPAR DADOS</button>
+                <button onclick="showResetModal()" class="btn-reset">LIMPAR DADOS</button>
             </div>
         </div>
 
@@ -284,8 +302,20 @@
         </footer>
     </div>
 
+    <!-- Custom Modal instead of window.confirm -->
+    <div id="resetModal" class="modal">
+        <div class="modal-content">
+            <h3>Limpar Tudo?</h3>
+            <p>Isso apagará permanentemente todos os nomes de equipes e pontuações inseridas.</p>
+            <div class="modal-actions">
+                <button onclick="hideResetModal()" class="btn-reset" style="padding: 0.8rem">CANCELAR</button>
+                <button onclick="confirmReset()" style="background: var(--danger); color: white; padding: 0.8rem">LIMPAR</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        const MAX_POINTS = 2410;
+        const MAX_POINTS = 2410; // Valor solicitado ajustado aqui
         const NUM_TEAMS = 8;
         let saveTimeout;
 
@@ -380,15 +410,22 @@
             document.getElementById('progressBar').style.width = Math.min((total / MAX_POINTS) * 100, 100) + '%';
         }
 
-        function resetForm() {
-            if(confirm("Tem certeza que deseja limpar todos os pontos e nomes de equipes?")) {
-                localStorage.removeItem('camaleaoData');
-                for (let i = 1; i <= NUM_TEAMS; i++) {
-                    document.getElementById(`team-${i}`).value = '';
-                    document.getElementById(`teamName-${i}`).value = `EQUIPE 0${i}`;
-                }
-                calculate();
+        function showResetModal() {
+            document.getElementById('resetModal').style.display = 'flex';
+        }
+
+        function hideResetModal() {
+            document.getElementById('resetModal').style.display = 'none';
+        }
+
+        function confirmReset() {
+            localStorage.removeItem('camaleaoData');
+            for (let i = 1; i <= NUM_TEAMS; i++) {
+                document.getElementById(`team-${i}`).value = '';
+                document.getElementById(`teamName-${i}`).value = `EQUIPE 0${i}`;
             }
+            calculate();
+            hideResetModal();
         }
 
         window.onload = createInputs;
